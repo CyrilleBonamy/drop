@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#OAR -n interFoam_drop
+###OAR -l {net='ib'}/nodes=7/core=20,walltime=24:00:00
+#OAR -l /nodes=1/core=20,walltime=24:00:00
+
+. /etc/profile
+module load openfoam/2106plus
+# module load env/ib4openmpi  # export OMPI_MCA_pml=ucx
+# module load env/rsh4openmpi # export OMPI_MCA_plm_rsh_agent=oar-envsh
+
+
+# Fichier des noeuds
+NODEFILE="${OAR_NODE_FILE}"
+[ -n "${OAR_MSG_NODEFILE:+x}" -a -e "${OAR_MSG_NODEFILE}" ] && NODEFILE="${OAR_MSG_NODEFILE}"
+
+# Nombre de processus parallèle
+NBCPUS=$(cat ${OAR_NODEFILE} | wc -l)
+
+mpirun -np ${NBCPUS} -machinefile ${NODEFILE}  interFoam -parallel
